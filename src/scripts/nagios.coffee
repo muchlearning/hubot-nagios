@@ -93,6 +93,11 @@ servicesort = (a, b) ->
   else
     0
 
+symbols = {
+  1: "⚠",
+  2: "❌"
+}
+
 calc_topic = (status) ->
   hosts = [];
   services = [];
@@ -131,21 +136,21 @@ calc_topic = (status) ->
   hoststatus = (host) ->
     counts[host.last_hard_state]++
     if host.last_hard_state is "1" || host.last_hard_state is "2"
-      stat = "#{host.host_name} #{host.plugin_output}"
+      stat = "#{symbols[host.last_hard_state]} #{host.host_name} #{host.plugin_output}"
       if host.is_flapping is "1"
-        stat += " (FLAPPING)"
+        stat += " (🔄)"
     else
-      stat = "#{host.host_name} is FLAPPING"
+      stat = "🔄 #{host.host_name}"
     return stat
 
   servicestatus = (serv) ->
     counts[serv.last_hard_state]++
     if serv.last_hard_state is "1" || serv.last_hard_state is "2"
-      stat = "#{serv.host_name}:#{serv.service_description} #{serv.plugin_output}"
+      stat = "#{symbols[serv.last_hard_state]} #{serv.host_name}:#{serv.service_description} #{serv.plugin_output}"
       if serv.is_flapping is "1"
-        stat += " (FLAPPING)"
+        stat += " (🔄)"
     else
-      stat = "#{serv.host_name}:#{serv.service_description} is FLAPPING"
+      stat = "🔄 #{serv.host_name}:#{serv.service_description}"
     return stat
 
   host_str = (hoststatus host for host in hosts).join(" | ")
@@ -153,11 +158,11 @@ calc_topic = (status) ->
 
   summary = []
   if counts[2]
-    summary.push(counts[2] + " CRITICAL")
+    summary.push(counts[2] + " ❌")
   if counts[1]
-    summary.push(counts[1] + " WARNING")
+    summary.push(counts[1] + " ⚠")
   if counts[0]
-    summary.push(counts[0] + " FLAPPING")
+    summary.push(counts[0] + " 🔄")
 
   summary = summary.join(",")
 
@@ -170,4 +175,4 @@ calc_topic = (status) ->
     if service_str.length
       "#{summary}: #{service_str}"
     else
-      "All green"
+      "🆗 All green"
