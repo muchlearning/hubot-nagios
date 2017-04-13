@@ -95,7 +95,8 @@ servicesort = (a, b) ->
 
 symbols = {
   1: "⚠",
-  2: "❌"
+  2: "❌",
+  3: "❓"
 }
 
 calc_topic = (status) ->
@@ -121,7 +122,7 @@ calc_topic = (status) ->
       curr = null;
 
   is_bad = (stat) ->
-    stat.scheduled_downtime_depth isnt "1" && (((stat.current_state is "1" || stat.current_state is "2") && (stat.last_hard_state is "1" || stat.last_hard_state is "2")) || stat.is_flapping is "1")
+    stat.scheduled_downtime_depth isnt "1" && (((stat.current_state is "1" || stat.current_state is "2" || stat.current_state is "3") && (stat.last_hard_state is "1" || stat.last_hard_state is "2" || stat.last_hard_state is "3")) || stat.is_flapping is "1")
 
   hosts = hosts.filter(is_bad);
 
@@ -135,7 +136,7 @@ calc_topic = (status) ->
 
   hoststatus = (host) ->
     counts[host.last_hard_state]++
-    if host.last_hard_state is "1" || host.last_hard_state is "2"
+    if host.last_hard_state is "1" || host.last_hard_state is "2" || host.last_hard_state is "3"
       stat = "#{symbols[host.last_hard_state]} #{host.host_name} #{host.plugin_output}"
       if host.is_flapping is "1"
         stat += " (🔄)"
@@ -145,7 +146,7 @@ calc_topic = (status) ->
 
   servicestatus = (serv) ->
     counts[serv.last_hard_state]++
-    if serv.last_hard_state is "1" || serv.last_hard_state is "2"
+    if serv.last_hard_state is "1" || serv.last_hard_state is "2" || serv.last_hard_state is "3"
       stat = "#{symbols[serv.last_hard_state]} #{serv.host_name}:#{serv.service_description} #{serv.plugin_output}"
       if serv.is_flapping is "1"
         stat += " (🔄)"
@@ -161,6 +162,8 @@ calc_topic = (status) ->
     summary.push(counts[2] + " ❌")
   if counts[1]
     summary.push(counts[1] + " ⚠")
+  if counts[3]
+    summary.push(counts[3] + " ❓")
   if counts[0]
     summary.push(counts[0] + " 🔄")
 
